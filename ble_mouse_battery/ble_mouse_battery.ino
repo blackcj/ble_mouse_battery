@@ -1,10 +1,11 @@
 #include <Wire.h>
 #include "SparkFun_Qwiic_Joystick_Arduino_Library.h"
 
-//#define ESP_32
+#define ESP_32
 
 #ifdef ESP_32
-  //#include <BleMouse.h>
+  #include <BleMouse.h>
+  #include <BleConnectionStatus.h>
 #else
   #include "bluefruit.h"
   BLEDis bledis;

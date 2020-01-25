@@ -7,7 +7,7 @@
   #include <BleMouse.h>
   #include <BleConnectionStatus.h>
 #else
-  #include "bluefruit.h"
+  #include <bluefruit.h>
   BLEDis bledis;
   BLEHidAdafruit blehid;
 #endif
@@ -37,7 +37,8 @@ void setup() {
     
   }
 #else
-  void setupBlufruit() {
+  void setupBluefruit() {
+    Serial.print("setupBlueFruit");
     Bluefruit.begin();
     // HID Device can have a min connection interval of 9*1.25 = 11.25 ms
     Bluefruit.Periph.setConnInterval(9, 16); // min = 9*1.25=11.25 ms, max = 16*1.25=20ms
@@ -51,6 +52,9 @@ void setup() {
   
     // BLE HID
     blehid.begin();
+
+    // Set up and start advertising
+    startAdv();
   }
 
   void startAdv(void)
@@ -79,15 +83,12 @@ void setup() {
     Bluefruit.Advertising.setInterval(32, 244);    // in unit of 0.625 ms
     Bluefruit.Advertising.setFastTimeout(120);      // number of seconds in fast mode
     Bluefruit.Advertising.start(0);                // 0 = Don't stop advertising after n seconds  
-  
-    // Set up and start advertising
-    startAdv();
   }
 #endif
 void loop() {
   int32_t x = joystick.getHorizontal();
   int32_t y = joystick.getVertical();
-  //blehid.mouseMove(x, y);
+  blehid.mouseMove(x, y);
   
   Serial.print("X: ");
   Serial.print(joystick.getHorizontal());
@@ -98,5 +99,5 @@ void loop() {
   Serial.print(" Button: ");
   Serial.println(joystick.getButton());
 
-  delay(500);
+  delay(20);
 }

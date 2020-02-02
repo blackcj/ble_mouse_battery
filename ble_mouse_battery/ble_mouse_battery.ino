@@ -1,7 +1,7 @@
 #include <Wire.h>
 #include "SparkFun_Qwiic_Joystick_Arduino_Library.h"
 
-#define ESP_32
+//#define ESP_32
 
 #ifdef ESP_32
   #include <BleMouse.h>
@@ -12,6 +12,8 @@
   BLEHidAdafruit blehid;
 #endif
 
+int batteryLevel = 100;
+int previousBatteryLevel = 100;
 JOYSTICK joystick; //Create instance of this object
 
 void setup() {
@@ -38,7 +40,7 @@ void setup() {
   }
 #else
   void setupBluefruit() {
-    Serial.print("setupBlueFruit");
+    Serial.println("setupBlueFruit");
     Bluefruit.begin();
     // HID Device can have a min connection interval of 9*1.25 = 11.25 ms
     Bluefruit.Periph.setConnInterval(9, 16); // min = 9*1.25=11.25 ms, max = 16*1.25=20ms
@@ -86,18 +88,30 @@ void setup() {
   }
 #endif
 void loop() {
-  int32_t x = joystick.getHorizontal();
-  int32_t y = joystick.getVertical();
+  int32_t x = (joystick.getHorizontal() - 512) / 10;
+  int32_t y = (joystick.getVertical() - 512) / 10;
   blehid.mouseMove(x, y);
-  
-  Serial.print("X: ");
-  Serial.print(joystick.getHorizontal());
 
-  Serial.print(" Y: ");
-  Serial.print(joystick.getVertical());
+  if (x > 10 && batteryLevel < 100) {
+    batteryLevel = batteryLevel + 1;
+  } else if (x < -10 && batteryLevel > 0) {
+    batteryLevel = batteryLevel - 1;
+  }
+
+  if (previousBatteryLevel != batteryLevel) {
+    Serial.print("Battery level: ");
+    Serial.println(batteryLevel);
+    previousBatteryLevel = batteryLevel;
+  }
   
-  Serial.print(" Button: ");
-  Serial.println(joystick.getButton());
+//  Serial.print("X: ");
+//  Serial.print(joystick.getHorizontal());
+//
+//  Serial.print(" Y: ");
+//  Serial.print(joystick.getVertical());
+//  
+//  Serial.print(" Button: ");
+//  Serial.println(joystick.getButton());
 
   delay(20);
 }
